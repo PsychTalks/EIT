@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Emotional Intelligence Assessment</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <div id="assessment-container"></div>
+    </div>
+
+    <script>
+        const sections = {
+            'Self-awareness': [
+                'I am generally aware of my emotions as I experience them.',
+                'I can identify the underlying causes of my feelings.',
+                'I recognize how my emotions affect my thoughts and behaviors.',
+                'I can accurately describe my emotions.',
+                'I am aware of how my emotional state influences my performance.'
+            ],
+            'Self-regulation': [
+                'I am able to manage my emotions effectively in stressful situations.',
+                'I avoid impulsive behaviors or decisions when upset.',
+                'I can stay calm and composed when facing adversity.',
+                'I am capable of controlling my negative emotions in difficult situations.',
+                'I can bounce back quickly after setbacks or disappointments.'
+            ],
+            'Motivation': [
+                'I am driven to achieve my goals, even when facing setbacks.',
+                'I can focus on long-term rewards rather than short-term gratification.',
+                'I feel a sense of passion and commitment toward my personal growth.',
+                'I take initiative in pursuing my goals without needing external motivation.',
+                'I remain optimistic and positive, even in challenging times.'
+            ],
+            'Empathy': [
+                'I can easily understand and share the feelings of others.',
+                'I try to see things from other peoples perspectives before making judgments.',
+                'I am attentive to others non-verbal cues (e.g., facial expressions, body language).',
+                'I can sense when someone is feeling down, even without them saying anything.',
+                'I respond to others with compassion and care when they need support.'
+            ],
+            'Social Skills': [
+                'I find it easy to build and maintain healthy relationships.',
+                'I am a good listener and often help others feel heard and valued.',
+                'I can resolve conflicts constructively, focusing on solutions.',
+                'I can easily adapt my communication style to different people and situations.',
+                'I encourage and motivate others to perform their best.',
+                'I am able to express myself clearly in conversations.',
+                'I can handle interpersonal difficulties or conflicts without escalating the situation.',
+                'I can network and make new acquaintances with ease.',
+                'I provide constructive feedback that helps others improve.',
+                'I maintain strong relationships with colleagues or friends even after conflicts.'
+            ],
+            'Relationship Management': [
+                'I regularly make an effort to show appreciation and gratitude to others.',
+                'I find it easy to maintain harmonious relationships in the workplace or social settings.',
+                'I am skilled at managing challenging relationships with people who have different perspectives.',
+                'I work well in teams, contributing to group goals while fostering collaboration.'
+            ]
+        };
+
+        class Assessment {
+            constructor() {
+                this.currentSection = 0;
+                this.answers = {};
+                this.sectionNames = Object.keys(sections);
+                this.container = document.getElementById('assessment-container');
+                this.renderIntro();
+            }
+
+            renderIntro() {
+                this.container.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h1 class="text-3xl font-bold text-center mb-6">Emotional Intelligence Assessment</h1>
+                        <div class="space-y-6">
+                            <div class="text-gray-600 space-y-4">
+                                <p>
+                                    The test is built on a widely accepted framework of emotional intelligence, notably <strong>Daniel Goleman's Emotional Intelligence Theory</strong>, which is backed by numerous studies. Goleman defines emotional intelligence as the ability to recognize and manage our own emotions, as well as the emotions of others.
+                                </p>
+                                <ul class="list-disc pl-6 space-y-2">
+                                    <li><strong>Self-awareness</strong>: Understanding one's emotions and their effect on others.</li>
+                                    <li><strong>Self-regulation</strong>: Managing emotions to adapt to circumstances.</li>
+                                    <li><strong>Motivation</strong>: Harnessing emotions to achieve goals.</li>
+                                    <li><strong>Empathy</strong>: Recognizing emotions in others and understanding their perspective.</li>
+                                    <li><strong>Social skills</strong>: Managing relationships to move people in desired directions.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h2 class="font-semibold mb-2">How to take this assessment:</h2>
+                                <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                    <li>Answer each question honestly based on your typical behavior</li>
+                                    <li>Choose from: Always (3 points), Sometimes (2 points), or Rarely (1 point)</li>
+                                    <li>Complete all questions in each section to proceed</li>
+                                </ul>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
+                                <p>
+                                    This assessment is a self-report tool and should be viewed as a general indicator of emotional intelligence. It is not a comprehensive or professionally validated test like the MSCEIT or EQ-i, and the results should not be used as the sole basis for important decisions. Emotional intelligence is complex and can change over time. For a more in-depth analysis or professional evaluation, it is recommended to consult a licensed psychologist or use a validated emotional intelligence assessment tool.
+                                </p>
+                            </div>
+                            <button 
+                                onclick="assessment.startAssessment()"
+                                class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Start Assessment
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            startAssessment() {
+                this.renderSection();
+            }
+
+            renderSection() {
+                const sectionName = this.sectionNames[this.currentSection];
+                const questions = sections[sectionName];
+                
+                this.container.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold mb-2">${sectionName}</h2>
+                            <div class="w-full bg-gray-200 h-2 rounded-full">
+                                <div class="bg-blue-600 h-2 rounded-full" 
+                                     style="width: ${((this.currentSection + 1) / this.sectionNames.length) * 100}%">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            ${questions.map((question, idx) => this.renderQuestion(question, idx)).join('')}
+                        </div>
+                        <div class="mt-8 flex justify-end">
+                            <button 
+                                onclick="assessment.nextSection()"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                ${this.currentSection === this.sectionNames.length - 1 ? 'See Results' : 'Next'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderQuestion(question, idx) {
+                const sectionKey = this.sectionNames[this.currentSection];
+                const answer = this.answers[`${sectionKey}-${idx}`];
+                
+                return `
+                    <div class="space-y-3">
+                        <p class="font-medium">${question}</p>
+                        <div class="flex space-x-4">
+                            ${['Always', 'Sometimes', 'Rarely'].map((option, valueIdx) => {
+                                const value = 3 - valueIdx;
+                                const isSelected = answer === value;
+                                return `
+                                    <button 
+                                        onclick="assessment.handleAnswer(${idx}, ${value})"
+                                        class="px-4 py-2 rounded-lg ${
+                                            isSelected 
+                                                ? 'bg-blue-600 text-white' 
+                                                : 'bg-gray-100 hover:bg-gray-200'
+                                        }"
+                                    >
+                                        ${option}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            handleAnswer(questionIndex, value) {
+                const sectionKey = this.sectionNames[this.currentSection];
+                this.answers[`${sectionKey}-${questionIndex}`] = value;
+                this.renderSection();
+            }
+
+            nextSection() {
+                const sectionKey = this.sectionNames[this.currentSection];
+                const questions = sections[sectionKey];
+                
+                const allAnswered = questions.every((_, idx) => 
+                    this.answers[`${sectionKey}-${idx}`] !== undefined
+                );
+
+                if (!allAnswered) {
+                    alert('Please answer all questions before proceeding.');
+                    return;
+                }
+
+                if (this.currentSection < this.sectionNames.length - 1) {
+                    this.currentSection++;
+                    this.renderSection();
+                } else {
+                    this.showResults();
+                }
+            }
+
+            calculateScore() {
+                const values = Object.values(this.answers);
+                const total = values.reduce((acc, val) => acc + val, 0);
+                return {
+                    total,
+                    category: total >= 90 ? 'High' : total >= 60 ? 'Moderate' : 'Low'
+                };
+            }
+
+            showResults() {
+                const score = this.calculateScore();
+                
+                this.container.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-center mb-6">Your Assessment Results</h2>
+                        <div class="text-center space-y-4">
+                            <div class="bg-blue-50 p-4 rounded-lg inline-block">
+                                <p class="text-2xl">
+                                    Total Score: <span class="font-bold">${score.total}</span> / 102
+                                </p>
+                                <p class="text-lg text-blue-600 font-semibold">
+                                    ${score.category} Emotional Intelligence
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <h3 class="text-xl font-semibold">Understanding Your Score:</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><span class="font-medium">90-102 points:</span> High EI - You excel in understanding and managing emotions</li>
+                                <li><span class="font-medium">60-89 points:</span> Moderate EI - Good foundation with room for growth</li>
+                                <li><span class="font-medium">34-59 points:</span> Developing EI - Opportunity for significant development</li>
+                            </ul>
+                        </div>
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+                            <p>
+                                This assessment is a self-report tool and should be viewed as a general indicator of emotional intelligence. For a more in-depth analysis or professional evaluation, please consult a licensed psychologist or use a validated emotional intelligence assessment tool.
+                            </p>
+                        </div>
+                        <button 
+                            onclick="assessment.renderIntro()"
+                            class="mt-8 w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Start New Assessment
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        let assessment = new Assessment();
+    </script>
+</body>
+</html>
