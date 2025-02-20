@@ -12,6 +12,7 @@
     </div>
 
     <script>
+        // Define the assessment sections and questions
         const sections = {
             'Self-awareness': [
                 'I am generally aware of my emotions as I experience them.',
@@ -61,6 +62,53 @@
             ]
         };
 
+        // Define improvement tips for each section
+        const improvementTips = {
+            'Self-awareness': [
+                'Start a daily emotion journal to track your feelings throughout the day',
+                'Practice mindfulness meditation for 10 minutes daily to increase awareness',
+                'Ask trusted friends for feedback about your emotional blind spots',
+                'Use the "name it to tame it" technique - verbalize your emotions as they arise',
+                'Take regular breaks to check in with yourself about how you\'re feeling'
+            ],
+            'Self-regulation': [
+                'Practice deep breathing exercises when feeling intense emotions',
+                'Create a "pause button" habit before responding in emotional situations',
+                'Develop healthy coping mechanisms like exercise or creative outlets',
+                'Use cognitive reframing to view challenges from a new perspective',
+                'Create a list of personal calming strategies for different situations'
+            ],
+            'Motivation': [
+                'Break larger goals into smaller, achievable milestones',
+                'Find an accountability partner to help maintain commitment',
+                'Connect your goals to your deeper values and purpose',
+                'Celebrate small wins to maintain momentum',
+                'Visualize success and how it will positively impact your life'
+            ],
+            'Empathy': [
+                'Practice active listening without interrupting or preparing your response',
+                'Read fiction to explore different perspectives and experiences',
+                'Volunteer with diverse groups to broaden your understanding of others',
+                'Ask open-ended questions to better understand others\' feelings',
+                'Practice empathetic body language like maintaining eye contact'
+            ],
+            'Social Skills': [
+                'Join groups or clubs to practice social interactions in low-pressure settings',
+                'Role-play difficult conversations with a trusted friend before having them',
+                'Take a communication workshop or course',
+                'Practice giving genuine compliments to build positive connections',
+                'Learn to express boundaries clearly and respectfully'
+            ],
+            'Relationship Management': [
+                'Schedule regular check-ins with important people in your life',
+                'Develop conflict resolution skills through workshops or reading',
+                'Practice expressing appreciation in specific, meaningful ways',
+                'Learn to separate people from problems when addressing conflicts',
+                'Build trust through consistent follow-through on commitments'
+            ]
+        };
+
+        // Assessment class
         class Assessment {
             constructor() {
                 this.currentSection = 0;
@@ -75,18 +123,10 @@
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h1 class="text-3xl font-bold text-center mb-6">Emotional Intelligence Assessment</h1>
                         <div class="space-y-6">
-                            <div class="text-gray-600 space-y-4">
-                                <p>
-                                    The test is built on a widely accepted framework of emotional intelligence, notably <strong>Daniel Goleman's Emotional Intelligence Theory</strong>, which is backed by numerous studies. Goleman defines emotional intelligence as the ability to recognize and manage our own emotions, as well as the emotions of others.
-                                </p>
-                                <ul class="list-disc pl-6 space-y-2">
-                                    <li><strong>Self-awareness</strong>: Understanding one's emotions and their effect on others.</li>
-                                    <li><strong>Self-regulation</strong>: Managing emotions to adapt to circumstances.</li>
-                                    <li><strong>Motivation</strong>: Harnessing emotions to achieve goals.</li>
-                                    <li><strong>Empathy</strong>: Recognizing emotions in others and understanding their perspective.</li>
-                                    <li><strong>Social skills</strong>: Managing relationships to move people in desired directions.</li>
-                                </ul>
-                            </div>
+                            <p class="text-gray-600">
+                                This assessment evaluates your emotional intelligence across six key areas:
+                                self-awareness, self-regulation, motivation, empathy, social skills, and relationship management.
+                            </p>
                             <div class="bg-blue-50 p-4 rounded-lg">
                                 <h2 class="font-semibold mb-2">How to take this assessment:</h2>
                                 <ul class="list-disc pl-6 space-y-2 text-gray-600">
@@ -94,11 +134,6 @@
                                     <li>Choose from: Always (3 points), Sometimes (2 points), or Rarely (1 point)</li>
                                     <li>Complete all questions in each section to proceed</li>
                                 </ul>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-                                <p>
-                                    This assessment is a self-report tool and should be viewed as a general indicator of emotional intelligence. It is not a comprehensive or professionally validated test like the MSCEIT or EQ-i, and the results should not be used as the sole basis for important decisions. Emotional intelligence is complex and can change over time. For a more in-depth analysis or professional evaluation, it is recommended to consult a licensed psychologist or use a validated emotional intelligence assessment tool.
-                                </p>
                             </div>
                             <button 
                                 onclick="assessment.startAssessment()"
@@ -200,17 +235,60 @@
                 }
             }
 
+            calculateSectionScores() {
+                const sectionScores = {};
+                
+                this.sectionNames.forEach(section => {
+                    const questions = sections[section];
+                    let sectionTotal = 0;
+                    let maxPossible = questions.length * 3;
+                    
+                    questions.forEach((_, idx) => {
+                        const score = this.answers[`${section}-${idx}`] || 0;
+                        sectionTotal += score;
+                    });
+                    
+                    sectionScores[section] = {
+                        score: sectionTotal,
+                        maxPossible: maxPossible,
+                        percentage: Math.round((sectionTotal / maxPossible) * 100)
+                    };
+                });
+                
+                return sectionScores;
+            }
+
             calculateScore() {
                 const values = Object.values(this.answers);
                 const total = values.reduce((acc, val) => acc + val, 0);
+                
+                // Calculate max possible score
+                let maxPossible = 0;
+                Object.values(sections).forEach(questions => {
+                    maxPossible += questions.length * 3;
+                });
+                
                 return {
                     total,
+                    maxPossible,
+                    percentage: Math.round((total / maxPossible) * 100),
                     category: total >= 90 ? 'High' : total >= 60 ? 'Moderate' : 'Low'
                 };
             }
 
+            findWeakestAreas(sectionScores) {
+                // Sort sections by percentage score, ascending
+                const sortedSections = Object.entries(sectionScores)
+                    .sort((a, b) => a[1].percentage - b[1].percentage);
+                
+                // Return the two lowest scoring areas
+                return sortedSections.slice(0, 2).map(entry => entry[0]);
+            }
+
             showResults() {
-                const score = this.calculateScore();
+                const sectionScores = this.calculateSectionScores();
+                const overallScore = this.calculateScore();
+                const weakestAreas = this.findWeakestAreas(sectionScores);
                 
                 this.container.innerHTML = `
                     <div class="bg-white rounded-lg shadow-lg p-8">
@@ -218,13 +296,34 @@
                         <div class="text-center space-y-4">
                             <div class="bg-blue-50 p-4 rounded-lg inline-block">
                                 <p class="text-2xl">
-                                    Total Score: <span class="font-bold">${score.total}</span> / 102
+                                    Total Score: <span class="font-bold">${overallScore.total}</span> / ${overallScore.maxPossible}
                                 </p>
                                 <p class="text-lg text-blue-600 font-semibold">
-                                    ${score.category} Emotional Intelligence
+                                    ${overallScore.category} Emotional Intelligence (${overallScore.percentage}%)
                                 </p>
                             </div>
                         </div>
+                        
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold mb-4">Your Score Breakdown:</h3>
+                            <div class="space-y-4">
+                                ${this.sectionNames.map(section => {
+                                    const sectionData = sectionScores[section];
+                                    return `
+                                        <div>
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="font-medium">${section}</span>
+                                                <span>${sectionData.score}/${sectionData.maxPossible} (${sectionData.percentage}%)</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 h-3 rounded-full">
+                                                <div class="bg-blue-600 h-3 rounded-full" style="width: ${sectionData.percentage}%"></div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
                         <div class="mt-8 space-y-4">
                             <h3 class="text-xl font-semibold">Understanding Your Score:</h3>
                             <ul class="space-y-2 text-gray-600">
@@ -233,14 +332,25 @@
                                 <li><span class="font-medium">34-59 points:</span> Developing EI - Opportunity for significant development</li>
                             </ul>
                         </div>
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-                            <p>
-                                This assessment is a self-report tool and should be viewed as a general indicator of emotional intelligence. For a more in-depth analysis or professional evaluation, please consult a licensed psychologist or use a validated emotional intelligence assessment tool.
-                            </p>
+                        
+                        <div class="mt-8 bg-yellow-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Growth Opportunities:</h3>
+                            <p class="mb-4">Based on your responses, here are areas where you can focus for improvement:</p>
+                            
+                            ${weakestAreas.map(area => `
+                                <div class="mb-6">
+                                    <h4 class="text-lg font-medium mb-2">${area}</h4>
+                                    <p class="mb-3 text-gray-700">This area represents your opportunity for growth. Here are some strategies to develop your ${area.toLowerCase()}:</p>
+                                    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                        ${improvementTips[area].map(tip => `<li>${tip}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
                         </div>
+                        
                         <button 
-                        onclick="window.open('https://psychtalks.github.io/EIT/', '_blank')"
-                        class="mt-8 w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            onclick="assessment.renderIntro()"
+                            class="mt-8 w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             Start New Assessment
                         </button>
@@ -249,6 +359,7 @@
             }
         }
 
+        // Initialize the assessment when the page loads
         let assessment = new Assessment();
     </script>
 </body>
